@@ -22,6 +22,8 @@ pick up ship parts - need to have all parts to escape.
 '''
 from sys import exit
 from textwrap import dedent
+import random
+import death
 
 #Map
 #   next_scene
@@ -61,7 +63,7 @@ class Home(Scene):
                 small shack with a rotting corpse guarding its entrance. Your only
                 chance of surviving is to hide inside the shack.
                 """))
-            return 'WeaponRoom'
+            return 'weaponroom'
 
         elif insert == "ignore it":
             print(dedent("""
@@ -69,13 +71,13 @@ class Home(Scene):
 
                 suddenly you are woken up by an infected ripping apart your body, slurping on your intestines like a freezy pop.
                 """))
-            return 'death'
+            return death.death()
 
         else:
             print("I dont know what that means...")
             return 'home'
 
-class WeaponRoom(Scene):
+class WeaponRoom(Scene):    # wanted to make weapons a pickup but was unable to figure out how.
 
     def enter(self):
         print(dedent("""
@@ -96,23 +98,107 @@ class WeaponRoom(Scene):
                 the infected has returned. You act fast and slice it up with your new trusty sword.
                 Good choice!
                 """))
-            return 'sword'
             return 'thetrap'
+
+        elif insert == 'pistol':
+            print(dedent("""
+                You have chosen the pistol. As you grab the pistol to load it, the infected bursts down
+                the doors and runs at you like a banshee. Unfortunatly you only have 3 shots in the pistol
+                and miss all three. The infected then proceeds to rip your head off and you die.
+                """))
+            return death.death()
+
+        else:
+            print("I dont know what that means...")
+            return 'weaponroom'
 
 class TheTrap(Scene):
 
     def enter(self):
-        pass
+        print(dedent("""
+            After escaping the shack with your sword you continue your journey.
+            while walking you spot a crashed ship. Running towrds it full of joy
+            you trip and fall flat on your face. As you stand back up you notice that you're surrounded
+            by infected.
+
+            fight or run away?
+            """))
+
+        insert = input("~ ")
+
+        if insert == 'fight':
+            print(dedent("""
+                You decide to fight off the infected. Slashing and slicing through multiple
+                enemys with your trusty sword. After fighting off the infected you find parts
+                to fix the crashed ship. Now your goal is to rebuild The ship.
+                """))
+            return 'rebuild'
+
+        elif insert == 'run away':
+            print(dedent("""
+                While trying to escape the infected one catches you offguard
+                and stabs you in the chest with its claws.
+
+                you died
+                """))
+            return
+
+        else:
+            print("I dont know what that means...")
+            return 'thetrap'
 
 class Rebuild(Scene):
 
     def enter(self):
-        pass
+        print(dedent("""
+            You make it back to the crashed ship and start your repairs.
+            While making some last adjustments, an infected jumps out of
+            a bush and startles you.
+
+            what do you do?
+            """))
+
+        insert = input("~ ")
+
+        if insert == 'fight':
+            print(dedent("""
+                While fighting the infected, it smacks your sword out of your hand
+                you fall to your knees and the infected rips your head off
+
+                you have died.
+                """))
+            return death.death()
+
+        elif insert == 'run away':
+            print(dedent("""
+                while running you trip and bang your head on a tree stump.
+                The infected snaps you in half like a kit kat.
+
+                you have died
+                """))
+            return death.death()
+
+        elif insert == 'shit pants':
+            print(dedent("""
+                you shit your pants! as the infected get closer it catches the
+                smell of your brew. It now has ultimate cringe face and runs runs
+                away in fear.
+                """))
+            return 'escapeship'
+
+        else:
+            print("I dont know what that means...")
+            return 'rebuild'
 
 class EscapeShip(Scene):
 
     def enter(self):
-        pass
+        print(dedent("""
+            After cleaning yourself up you make it to the Ship and fly away from planet zafaris.
+
+
+            YOU WIN!
+            """))
 
 class Engine(object):
 
@@ -127,10 +213,7 @@ class Engine(object):
             next_scene_name = current_scene.enter()
             current_scene = self.scene_map.next_scene(next_scene_name)
 
-class Death(Scene):
-
-    def enter(self):
-        pass
+        current_scene_enter()
 
 
 class Map(object):
@@ -141,7 +224,6 @@ class Map(object):
     'thetrap': TheTrap(),
     'rebuild': Rebuild(),
     'escapeship': EscapeShip(),
-    'death': Death(),
     }
 
     def __init__(self, start_scene):
