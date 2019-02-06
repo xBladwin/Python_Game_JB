@@ -20,7 +20,8 @@ Death - when the player dies
 PickUpWeapon - a choice between the sword or the pistol each has different outcomes
 pick up ship parts - need to have all parts to escape.
 '''
-
+from sys import exit
+from textwrap import dedent
 
 #Map
 #   next_scene
@@ -39,30 +40,64 @@ pick up ship parts - need to have all parts to escape.
 class Scene(object):
 
     def enter(self):
-        pass
-
-class Engine(object):
-
-    def __init__(self, scene_map):
-        pass
-
-    def play(self):
-        pass
-
-class Death(Scene):
-
-    def enter(self):
-        pass
+        exit(1)
 
 class Home(Scene):
 
     def enter(self):
-        pass
+        print(dedent("""
+            You wake up in a dark room. "It's been 33 days since the nuclear explosion" you think to yourself.
+
+            You see a light shining in through the door. What do you do,
+            investigate or ignore it?
+            """))
+
+        insert = input("~ ")
+
+        if insert == "investigate":
+            print(dedent("""
+                You see a strange figure standing at the door... Quickly you open
+                the door and start to make a run for it. While running you notice a
+                small shack with a rotting corpse guarding its entrance. Your only
+                chance of surviving is to hide inside the shack.
+                """))
+            return 'WeaponRoom'
+
+        elif insert == "ignore it":
+            print(dedent("""
+                You think nothing of the light and fall back asleep.
+
+                suddenly you are woken up by an infected ripping apart your body, slurping on your intestines like a freezy pop.
+                """))
+            return 'death'
+
+        else:
+            print("I dont know what that means...")
+            return 'home'
 
 class WeaponRoom(Scene):
 
     def enter(self):
-        pass
+        print(dedent("""
+            As you enter the shack to catch your breath the infected you were
+            running from walks past. After ensuring safety you notice a
+            sword hanging on the wall and a pistol lying on the counter.
+
+            Which weapon do you choose?
+            """))
+
+        insert = input("~ ")
+
+        if insert == 'sword':
+            print(dedent("""
+                You decide on the sword as your weapon of choice. Good Luck!
+
+                As you pull the sword slowly off the wall, you see a reflection that frightens you.
+                the infected has returned. You act fast and slice it up with your new trusty sword.
+                Good choice!
+                """))
+            return 'sword'
+            return 'thetrap'
 
 class TheTrap(Scene):
 
@@ -79,17 +114,46 @@ class EscapeShip(Scene):
     def enter(self):
         pass
 
+class Engine(object):
+
+    def __init__(self, scene_map):
+        self.scene_map = scene_map
+
+    def play(self):
+        current_scene = self.scene_map.opening_scene()
+        last_scene = self.scene_map.next_scene('escapeship')
+
+        while current_scene != last_scene:
+            next_scene_name = current_scene.enter()
+            current_scene = self.scene_map.next_scene(next_scene_name)
+
+class Death(Scene):
+
+    def enter(self):
+        pass
+
+
 class Map(object):
 
+    scenes = {
+    'home': Home(),
+    'weaponroom': WeaponRoom(),
+    'thetrap': TheTrap(),
+    'rebuild': Rebuild(),
+    'escapeship': EscapeShip(),
+    'death': Death(),
+    }
+
     def __init__(self, start_scene):
-        pass
+        self.start_scene = start_scene
 
     def next_scene(self, scene_name):
-        pass
+        val = Map.scenes.get(scene_name)
+        return val
 
     def opening_scene(self):
-        pass
+        return self.next_scene(self.start_scene)
 
-a_map = Map('Home')
+a_map = Map('home')
 a_game = Engine(a_map)
 a_game.play()
